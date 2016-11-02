@@ -1,0 +1,30 @@
+{
+  "name": "twitter-client",
+  "version": "1.0.0",
+  "description": "A Twitter client working with node.js and express",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maycas/th-td-fsjs-p7-twitterClient.git"
+  },
+  "keywords": [
+    "twitter",
+    "api",
+    "node.js",
+    "express"
+  ],
+  "author": "Marc Maycas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Maycas/th-td-fsjs-p7-twitterClient/issues"
+  },
+  "homepage": "https://github.com/Maycas/th-td-fsjs-p7-twitterClient#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "pug": "^2.0.0-beta6",
+    "twitter-node-client": "0.0.6"
+  }
+}
