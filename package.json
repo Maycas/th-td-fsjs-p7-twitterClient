@@ -4,7 +4,8 @@
   "description": "A Twitter client working with node.js and express",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,9 @@
   },
   "homepage": "https://github.com/Maycas/th-td-fsjs-p7-twitterClient#readme",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "nodemon": "^1.11.0",
     "pug": "^2.0.0-beta6",
     "twitter-node-client": "0.0.6"
   }
