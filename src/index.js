@@ -6,16 +6,6 @@
 
     var app = express();
 
-
-
-
-
-
-
-
-
-
-
     // Set the static files route
     app.use('/static', express.static(__dirname + '/public'));
 
@@ -24,9 +14,7 @@
     app.set('views', __dirname + '/templates');
 
     // Set the different get routes
-    app.get('/', function (req, res) {
-        twitter.performRequests(req, res);
-    });
+    app.get('/', twitter.performRequests);
 
     // TODO: Set the post routes
 

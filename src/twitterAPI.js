@@ -20,12 +20,19 @@ function parseTime(timestamp, dayLimit) {
     }
 }
 
-module.exports.getUserTimeline = function (errCallback, successCallback) {
+function getUserTimeline(errCallback, successCallback) {
     twitter.getUserTimeline({
         screen_name: twitter_config.twitterUsername,
         count: '5'
     }, errCallback, successCallback);
-};
+}
+
+function getFollowersList(errCallback, successCallback) {
+    twitter.getFollowersList({
+        screen_name: twitter_config.twitterUsername,
+        count: '5'
+    }, errCallback, successCallback);
+}
 
 
 module.exports.performRequests = function (req, res, endedCallback) {
@@ -35,18 +42,15 @@ module.exports.performRequests = function (req, res, endedCallback) {
         followingNumber: 129
     };
 
-    var tweets = [];
-    var friends = [];
     var messages = [];
 
     // Get the tweets data
-    this.getUserTimeline(error, function (data) {
+    getUserTimeline(error, function (data) {
+        var tweets = [];
         var tweetData = {};
         var user = {};
         var tweetInfo = {};
         var json = JSON.parse(data);
-
-        console.log(json[2]);
 
         json.forEach(function (tweet) {
             // Check if it's a user's tweet and retweet
@@ -89,13 +93,36 @@ module.exports.performRequests = function (req, res, endedCallback) {
         infoObj.tweets = tweets;
 
 
-        // Perform second request
+        // Perform second request - Get Followers
+        getFollowersList(error, function (data) {
+            var followers = [];
+            var follower = {};
+            var json = JSON.parse(data);
 
-        // Render 
-        res.render('index', infoObj);
+            json.users.forEach(function (user) {
+                // Get the followers data and push it into the followers array
+                follower = {
+                    name: user.name,
+                    screen_name: user.screen_name,
+                    profile_image_url: user.profile_image_url,
+                    following: user.following
+                };
+                followers.push(follower);
+            });
 
+            infoObj.followers = followers;
+
+            console.log(infoObj.followers);
+
+
+            // Next request
+
+
+
+            // Render, at the end of the requests chain 
+            res.render('index', infoObj);
+        });
     });
-
 };
 
 
