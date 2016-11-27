@@ -6,17 +6,20 @@ var Twitter = require('twitter-node-client').Twitter;
 var twitter = new Twitter(twitter_config);
 
 
-function parseTime(timestamp, dayLimit) {
+function parseTime(timestamp, dayLimit, hoursMessageToAppend) {
     var now = new Date();
-    var timestamp = new Date(timestamp);
+    var time = new Date(timestamp);
     // Calculate the days difference, taking into account the months as well
-    var daysDifference = Math.round(Math.abs((now.getTime() - timestamp.getTime()) / (24 * 60 * 60 * 1000)));
+    var daysDifference = Math.round(Math.abs((now.getTime() - time.getTime()) / (24 * 60 * 60 * 1000)));
+    // Calculate hours difference
+    var hoursDifference = Math.round(Math.abs((now.getTime() - time.getTime()) / (60 * 60 * 1000)));
+
     var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     if (daysDifference <= dayLimit) {
-        return ((now.getHours() - timestamp.getHours()) + "h");
+        return hoursDifference + hoursMessageToAppend;
     } else {
-        return (timestamp.getDate() + " " + monthNames[timestamp.getMonth()]);
+        return (time.getDate() + " " + monthNames[time.getMonth()]);
     }
 }
 
@@ -34,15 +37,34 @@ function getFollowersList(errCallback, successCallback) {
     }, errCallback, successCallback);
 }
 
+function getDirectMessagesReceived(resultObj, errCallback, successCallback) {
+    twitter.getCustomApiCall('/direct_messages.json', {
+        count: '10'
+    }, errCallback, successCallback);
+}
 
-module.exports.performRequests = function (req, res, endedCallback) {
+function getDirectMessagesSent(resultObj, errCallback, successCallback) {
+    twitter.getCustomApiCall('/direct_messages/sent.json', {
+        count: '10'
+    }, errCallback, successCallback);
+}
+
+function sortObjectArrayByTimestamp(array) {
+    return array.sort(function (a, b) {
+        return b.timestamp - a.timestamp;
+    });
+}
+
+
+
+module.exports.performRequests = function (req, res) {
+    // TODO: Get the user object from the API instead
     var infoObj = {
         username: twitter_config.twitterUsername,
+        screen_name: "Marc Maycas",
         userProfileImageUrl: 'http://localhost:3000/static/images/m-spore.png',
-        followingNumber: 129
+        followingNumber: 110
     };
-
-    var messages = [];
 
     // Get the tweets data
     getUserTimeline(error, function (data) {
@@ -82,7 +104,7 @@ module.exports.performRequests = function (req, res, endedCallback) {
 
             // Set the tweet data object and push it into the tweets array
             tweetData = {
-                timeElapsed: parseTime(tweet.created_at, 1),
+                timeElapsed: parseTime(tweet.created_at, 1, "h"),
                 user: user,
                 tweetInfo: tweetInfo
             };
@@ -112,15 +134,52 @@ module.exports.performRequests = function (req, res, endedCallback) {
 
             infoObj.followers = followers;
 
-            console.log(infoObj.followers);
+            // Perform third request - Get Direct Messages
+            getDirectMessagesReceived(infoObj, error, function (data) {
+                var messages = [];
+                var message = {};
+                var json = JSON.parse(data);
 
+                json.forEach(function (message) {
+                    message = {
+                        timestamp: new Date(message.created_at).getTime(),
+                        created_at: parseTime(new Date(message.created_at), 1, " hours ago"),
+                        messageText: message.text,
+                        from: {
+                            screen_name: message.sender.screen_name,
+                            name: message.sender.name,
+                            profile_image_url: message.sender.profile_image_url
+                        },
+                    };
+                    messages.push(message);
+                });
 
-            // Next request
+                getDirectMessagesSent(infoObj, error, function (data) {
+                    var json = JSON.parse(data);
+                    json.forEach(function (message) {
+                        message = {
+                            timestamp: new Date(message.created_at).getTime(),
+                            created_at: parseTime(new Date(message.created_at), 1, " hours ago"),
+                            messageText: message.text,
+                            to: {
+                                screen_name: message.recipient.screen_name,
+                                name: message.recipient.name,
+                                profile_image_url: message.recipient.profile_image_url
+                            }
+                        };
+                        messages.push(message);
+                    });
 
+                    messages = sortObjectArrayByTimestamp(messages);
 
+                    infoObj.messages = messages.slice(0, 5); // Get only the first 5 messages
+                    
+                    console.log(infoObj);
 
-            // Render, at the end of the requests chain 
-            res.render('index', infoObj);
+                    // Render, at the end of the requests chain 
+                    res.render('index', infoObj);
+                });
+            });
         });
     });
 };
@@ -128,9 +187,13 @@ module.exports.performRequests = function (req, res, endedCallback) {
 
 
 //Callback functions
-var error = function (err, response, body) {
+var error = function (err, res, body) {
     console.log('ERROR [%s]', JSON.stringify(err));
+
+    var infoObj = require('../messages.json'); 
+
+    res.render('index', infoObj);
 };
 var success = function (data) {
-    console.log('Data [%s]', JSON.stringify(data));
+    //  console.log('Data [%s]', JSON.stringify(data));
 };

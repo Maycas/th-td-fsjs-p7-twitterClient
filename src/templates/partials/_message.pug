@@ -1,0 +1,12 @@
+if message.from
+    li.app--message
+        .app--avatar(style='background-image: url('+ message.from.profile_image_url +')')
+            img(src=message.from.profile_image_url)
+        p.app--message--text #{message.messageText}
+        p.app--message--timestamp #{message.created_at}
+else if message.to
+    li.app--message--me
+        .app--avatar(style='background-image: url('+ userProfileImageUrl +')')
+            img(src=userProfileImageUrl)
+        p.app--message--text #{message.messageText}
+        p.app--message--timestamp #{message.created_at}
