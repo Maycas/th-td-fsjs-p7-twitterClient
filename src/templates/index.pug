@@ -1,0 +1,84 @@
+extends ./layout.pug
+block content
+    .app--tweet
+        include ./partials/_post-tweet.pug
+    .bounds.app--body
+        .app--section--header
+            include ./partials/_app-section-headings.pug
+        .grid-33
+            .app--section
+                ul.app--tweet--list
+                    for tweet in tweets
+                        li
+                            strong.app--tweet--timestamp #{tweet.timeElapsed}
+                            a.app--tweet--author
+                                .app--avatar(style='background-image: url('+ tweet.user.profile_image_url +')')
+                                    img(src=tweet.user.profile_image_url)
+                                h4 #{tweet.user.name} 
+                                |    @#{tweet.user.screen_name}
+                            p #{tweet.tweetInfo.text}
+                            ul.app--tweet--actions.circle--list--inline
+                                li
+                                    a.app--reply
+                                        span.tooltip Reply
+                                        include ./partials/_reply-icon.pug
+                                li
+                                    a.app--retweet
+                                        span.tooltip Retweet
+                                        include ./partials/_retweet-icon.pug
+                                        strong #{tweet.tweetInfo.retweet_count}
+                                li
+                                    a.app--like
+                                        span.tooltip Like
+                                        include ./partials/_like-icon.pug
+                                        strong #{tweet.tweetInfo.like_count}
+        .grid-33
+            .app--section
+                ul.app--user--list
+                    for follower in followers 
+                        li
+                            .circle--fluid
+                                .circle--fluid--cell.circle--fluid--primary
+                                    a.app--tweet--author
+                                        .app--avatar(style='background-image: url(' + follower.profile_image_url + ')')
+                                            img(src=follower.profile_image_url)
+                                        h4 #{follower.name}
+                                        |   @#{follower.screen_name}
+                                .circle--fluid--cell
+                                    if follower.following
+                                        a.button.button-text Unfollow
+                                    else
+                                        a.button Follow   
+        .grid-33
+            .app--section
+                ul.app--message--list
+                    - var currentConversationWith = ""
+                    - var previousConversationWith = currentConversationWith
+                    for message in messages
+                        - // Define who is the user the message is shared with
+                        - if (message.to) {
+                        -    currentConversationWith = message.to.name;
+                        -}
+                        - if(message.from) {
+                        -    currentConversationWith = message.from.name;
+                        -}   
+                        
+                        - // In case the conversation is with a different user, then set that in the template
+                        - if(currentConversationWith !== previousConversationWith ||currentConversationWith === "") {
+                            li            
+                                h3 Conversation with 
+                                    if message.to
+                                        a #{message.to.name}
+                                    else if message.from
+                                        a #{message.from.name}
+                                ul.app--message--conversation
+                                    include ./partials/_message.pug
+                        -}    
+
+
+                        
+                        - // Update status of the conversation
+                        if message.to
+                            - previousConversationWith = currentConversationWith; 
+                        else if message.from
+                            - previousConversationWith = currentConversationWith;
