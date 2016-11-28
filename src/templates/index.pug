@@ -1,5 +1,12 @@
 extends ./layout.pug
 block content
+    - // Mixin to set the current conversation user in the app--message--list column
+    mixin setCurrentConversationUser
+        if message.to 
+            - currentConversationWith = message.to.name
+        else if message.from
+            - currentConversationWith = message.from.name
+
     .app--tweet
         include ./partials/_post-tweet.pug
     .bounds.app--body
@@ -52,41 +59,35 @@ block content
         .grid-33
             .app--section
                 ul.app--message--list
+                    - // In order to split the messages into conversations (the API can return the messages mixed), a quite complex algorithm is required, using the pure Javascript capabilities of Pug
                     - var message;
                     - var currentConversationWith;
                     - var previousConversationWith;
-                    - var i = 0;
-                    - while(i < messages.length) {    
-                        - console.log("i", i)                   
-                        - message = messages[i];
+                    - while(messages.length > 0) {  
+                        - // Extract the first                  
+                        - message = messages.shift();
                        
-                        if message.to 
-                            - currentConversationWith = message.to.name
-                        else if message.from
-                            - currentConversationWith = message.from.name
+                        +setCurrentConversationUser
+
                         - previousConversationWith = currentConversationWith;
                         
                         li
                             h3 Conversation with 
                                 a #{currentConversationWith}
                             ul.app--message--conversation
-                                - for (var j = i; j < messages.length; j++) {
-                                    - console.log("j", j)
-                                    - message = messages[j];
-                                    - console.log("message", message.messageText)
-                                    if message.to 
-                                        - currentConversationWith = message.to.name
-                                    else if message.from
-                                        - currentConversationWith = message.from.name
-                                                                       
+                                include ./partials/_message.pug
+                                - while (messages.length > 0 && previousConversationWith === currentConversationWith) {
+                                    - message = messages.shift();
+
+                                    +setCurrentConversationUser
+                                             
                                     if currentConversationWith === previousConversationWith
+                                        - // If the next message is with the same person as the previous one, append it inside the current conversation
                                         include ./partials/_message.pug
                                     else
-                                        - previousConversationWith = currentConversationWith;
-                                        - i = j - 1;
-                                        - break;                             
+                                        - // If it's not, return the message to the start of the array, so it can be printed in the next iteration, and exit the loop
+                                        - messages.unshift(message);
+                                        - break;     
                                 -}
-                                - i++;
-                                -console.log("\n");
                     -}
-                    
+

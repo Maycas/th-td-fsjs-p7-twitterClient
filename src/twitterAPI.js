@@ -6,17 +6,16 @@ var Twitter = require('twitter-node-client').Twitter;
 var twitter = new Twitter(twitter_config);
 
 
-function parseTime(timestamp, dayLimit, hoursMessageToAppend) {
+function parseTime(timestamp, hoursLimit, hoursMessageToAppend) {
     var now = new Date();
     var time = new Date(timestamp);
-    // Calculate the days difference, taking into account the months as well
-    var daysDifference = Math.round(Math.abs((now.getTime() - time.getTime()) / (24 * 60 * 60 * 1000)));
+    
     // Calculate hours difference
     var hoursDifference = Math.round(Math.abs((now.getTime() - time.getTime()) / (60 * 60 * 1000)));
 
     var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    if (daysDifference <= dayLimit) {
+    if (hoursDifference <= hoursLimit) {
         return hoursDifference + hoursMessageToAppend;
     } else {
         return (time.getDate() + " " + monthNames[time.getMonth()]);
@@ -45,7 +44,7 @@ function getDirectMessagesReceived(resultObj, errCallback, successCallback) {
 
 function getDirectMessagesSent(resultObj, errCallback, successCallback) {
     twitter.getCustomApiCall('/direct_messages/sent.json', {
-        count: '5'
+        count: '10'
     }, errCallback, successCallback);
 }
 
@@ -104,7 +103,7 @@ module.exports.performRequests = function (req, res) {
 
             // Set the tweet data object and push it into the tweets array
             tweetData = {
-                timeElapsed: parseTime(tweet.created_at, 1, "h"),
+                timeElapsed: parseTime(tweet.created_at, 24, "h"),
                 user: user,
                 tweetInfo: tweetInfo
             };
@@ -143,7 +142,7 @@ module.exports.performRequests = function (req, res) {
                 json.forEach(function (message) {
                     message = {
                         timestamp: new Date(message.created_at).getTime(),
-                        created_at: parseTime(new Date(message.created_at), 1, " hours ago"),
+                        created_at: parseTime(new Date(message.created_at), 24, " hours ago"),
                         messageText: message.text,
                         from: {
                             screen_name: message.sender.screen_name,
@@ -159,7 +158,7 @@ module.exports.performRequests = function (req, res) {
                     json.forEach(function (message) {
                         message = {
                             timestamp: new Date(message.created_at).getTime(),
-                            created_at: parseTime(new Date(message.created_at), 1, " hours ago"),
+                            created_at: parseTime(new Date(message.created_at), 24, " hours ago"),
                             messageText: message.text,
                             to: {
                                 screen_name: message.recipient.screen_name,
@@ -172,10 +171,8 @@ module.exports.performRequests = function (req, res) {
 
                     messages = sortObjectArrayByTimestamp(messages);
 
-                    //infoObj.messages = messages.slice(0, 5); // Get only the first 5 messages
-                    infoObj.messages = messages;
-                    
-                    console.log(infoObj);
+                    infoObj.messages = messages.slice(0, 5); // Get only the first 5 messages
+                    //infoObj.messages = messages;
 
                     // Render, at the end of the requests chain 
                     res.render('index', infoObj);
