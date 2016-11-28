@@ -52,33 +52,41 @@ block content
         .grid-33
             .app--section
                 ul.app--message--list
-                    - var currentConversationWith = ""
-                    - var previousConversationWith = currentConversationWith
-                    for message in messages
-                        - // Define who is the user the message is shared with
-                        - if (message.to) {
-                        -    currentConversationWith = message.to.name;
-                        -}
-                        - if(message.from) {
-                        -    currentConversationWith = message.from.name;
-                        -}   
-                        
-                        - // In case the conversation is with a different user, then set that in the template
-                        - if(currentConversationWith !== previousConversationWith ||currentConversationWith === "") {
-                            li            
-                                h3 Conversation with 
-                                    if message.to
-                                        a #{message.to.name}
-                                    else if message.from
-                                        a #{message.from.name}
-                                ul.app--message--conversation
-                                    include ./partials/_message.pug
-                        -}    
-
-
-                        
-                        - // Update status of the conversation
-                        if message.to
-                            - previousConversationWith = currentConversationWith; 
+                    - var message;
+                    - var currentConversationWith;
+                    - var previousConversationWith;
+                    - var i = 0;
+                    - while(i < messages.length) {    
+                        - console.log("i", i)                   
+                        - message = messages[i];
+                       
+                        if message.to 
+                            - currentConversationWith = message.to.name
                         else if message.from
-                            - previousConversationWith = currentConversationWith;
+                            - currentConversationWith = message.from.name
+                        - previousConversationWith = currentConversationWith;
+                        
+                        li
+                            h3 Conversation with 
+                                a #{currentConversationWith}
+                            ul.app--message--conversation
+                                - for (var j = i; j < messages.length; j++) {
+                                    - console.log("j", j)
+                                    - message = messages[j];
+                                    - console.log("message", message.messageText)
+                                    if message.to 
+                                        - currentConversationWith = message.to.name
+                                    else if message.from
+                                        - currentConversationWith = message.from.name
+                                                                       
+                                    if currentConversationWith === previousConversationWith
+                                        include ./partials/_message.pug
+                                    else
+                                        - previousConversationWith = currentConversationWith;
+                                        - i = j - 1;
+                                        - break;                             
+                                -}
+                                - i++;
+                                -console.log("\n");
+                    -}
+                    

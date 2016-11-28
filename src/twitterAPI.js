@@ -33,7 +33,7 @@ function getUserTimeline(errCallback, successCallback) {
 function getFollowersList(errCallback, successCallback) {
     twitter.getFollowersList({
         screen_name: twitter_config.twitterUsername,
-        count: '5'
+        count: '10'
     }, errCallback, successCallback);
 }
 
@@ -45,7 +45,7 @@ function getDirectMessagesReceived(resultObj, errCallback, successCallback) {
 
 function getDirectMessagesSent(resultObj, errCallback, successCallback) {
     twitter.getCustomApiCall('/direct_messages/sent.json', {
-        count: '10'
+        count: '5'
     }, errCallback, successCallback);
 }
 
@@ -172,7 +172,8 @@ module.exports.performRequests = function (req, res) {
 
                     messages = sortObjectArrayByTimestamp(messages);
 
-                    infoObj.messages = messages.slice(0, 5); // Get only the first 5 messages
+                    //infoObj.messages = messages.slice(0, 5); // Get only the first 5 messages
+                    infoObj.messages = messages;
                     
                     console.log(infoObj);
 
