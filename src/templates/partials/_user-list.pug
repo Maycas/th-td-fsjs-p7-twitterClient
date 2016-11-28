@@ -1,0 +1,15 @@
+ul.app--user--list
+    for follower in followers 
+        li
+            .circle--fluid
+                .circle--fluid--cell.circle--fluid--primary
+                    a.app--tweet--author
+                        .app--avatar(style='background-image: url(' + follower.profile_image_url + ')')
+                            img(src=follower.profile_image_url)
+                        h4 #{follower.name}
+                        |   @#{follower.screen_name}
+                .circle--fluid--cell
+                    if follower.following
+                        a.button.button-text Unfollow
+                    else
+                        a.button Follow 

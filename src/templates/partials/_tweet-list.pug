@@ -1,0 +1,25 @@
+ul.app--tweet--list
+    for tweet in tweets
+        li
+            strong.app--tweet--timestamp #{tweet.timeElapsed}
+            a.app--tweet--author
+                .app--avatar(style='background-image: url('+ tweet.user.profile_image_url +')')
+                    img(src=tweet.user.profile_image_url)
+                h4 #{tweet.user.name} 
+                |    @#{tweet.user.screen_name}
+            p #{tweet.tweetInfo.text}
+            ul.app--tweet--actions.circle--list--inline
+                li
+                    a.app--reply
+                        span.tooltip Reply
+                        include ./_reply-icon.pug
+                li
+                    a.app--retweet
+                        span.tooltip Retweet
+                        include ./_retweet-icon.pug
+                        strong #{tweet.tweetInfo.retweet_count}
+                li
+                    a.app--like
+                        span.tooltip Like
+                        include ./_like-icon.pug
+                        strong #{tweet.tweetInfo.like_count}

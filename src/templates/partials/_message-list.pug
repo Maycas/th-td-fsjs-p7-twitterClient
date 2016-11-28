@@ -1,0 +1,39 @@
+- // Mixin to set the current conversation user in the app--message--list column
+mixin setCurrentConversationUser
+    if message.to 
+        - currentConversationWith = message.to.name
+    else if message.from
+        - currentConversationWith = message.from.name
+
+ul.app--message--list
+    - // In order to split the messages into conversations (the API can return the messages mixed), a quite complex algorithm is required, using the pure Javascript capabilities of Pug
+    - var message;
+    - var currentConversationWith;
+    - var previousConversationWith;
+    - while(messages.length > 0) {  
+        - // Extract the first                  
+        - message = messages.shift();
+       
+        +setCurrentConversationUser
+
+        - previousConversationWith = currentConversationWith;
+        
+        li
+            h3 Conversation with 
+                a #{currentConversationWith}
+            ul.app--message--conversation
+                include ./_message.pug
+                - while (messages.length > 0 && previousConversationWith === currentConversationWith) {
+                    - message = messages.shift();
+
+                    +setCurrentConversationUser
+                             
+                    if currentConversationWith === previousConversationWith
+                        - // If the next message is with the same person as the previous one, append it inside the current conversation
+                        include ./_message.pug
+                    else
+                        - // If it's not, return the message to the start of the array, so it can be printed in the next iteration, and exit the loop
+                        - messages.unshift(message);
+                        - break;     
+                -}
+    -}
