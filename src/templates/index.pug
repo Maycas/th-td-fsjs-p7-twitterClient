@@ -1,12 +1,5 @@
 extends ./layout.pug
 block content
-    - // Mixin to set the current conversation user in the app--message--list column
-    mixin setCurrentConversationUser
-        if message.to 
-            - currentConversationWith = message.to.name
-        else if message.from
-            - currentConversationWith = message.from.name
-
     .app--tweet
         include ./partials/_post-tweet.pug
     .bounds.app--body
@@ -14,80 +7,10 @@ block content
             include ./partials/_app-section-headings.pug
         .grid-33
             .app--section
-                ul.app--tweet--list
-                    for tweet in tweets
-                        li
-                            strong.app--tweet--timestamp #{tweet.timeElapsed}
-                            a.app--tweet--author
-                                .app--avatar(style='background-image: url('+ tweet.user.profile_image_url +')')
-                                    img(src=tweet.user.profile_image_url)
-                                h4 #{tweet.user.name} 
-                                |    @#{tweet.user.screen_name}
-                            p #{tweet.tweetInfo.text}
-                            ul.app--tweet--actions.circle--list--inline
-                                li
-                                    a.app--reply
-                                        span.tooltip Reply
-                                        include ./partials/_reply-icon.pug
-                                li
-                                    a.app--retweet
-                                        span.tooltip Retweet
-                                        include ./partials/_retweet-icon.pug
-                                        strong #{tweet.tweetInfo.retweet_count}
-                                li
-                                    a.app--like
-                                        span.tooltip Like
-                                        include ./partials/_like-icon.pug
-                                        strong #{tweet.tweetInfo.like_count}
+                include ./partials/_tweet-list.pug
         .grid-33
             .app--section
-                ul.app--user--list
-                    for follower in followers 
-                        li
-                            .circle--fluid
-                                .circle--fluid--cell.circle--fluid--primary
-                                    a.app--tweet--author
-                                        .app--avatar(style='background-image: url(' + follower.profile_image_url + ')')
-                                            img(src=follower.profile_image_url)
-                                        h4 #{follower.name}
-                                        |   @#{follower.screen_name}
-                                .circle--fluid--cell
-                                    if follower.following
-                                        a.button.button-text Unfollow
-                                    else
-                                        a.button Follow   
+                include ./partials/_user-list.pug
         .grid-33
             .app--section
-                ul.app--message--list
-                    - // In order to split the messages into conversations (the API can return the messages mixed), a quite complex algorithm is required, using the pure Javascript capabilities of Pug
-                    - var message;
-                    - var currentConversationWith;
-                    - var previousConversationWith;
-                    - while(messages.length > 0) {  
-                        - // Extract the first                  
-                        - message = messages.shift();
-                       
-                        +setCurrentConversationUser
-
-                        - previousConversationWith = currentConversationWith;
-                        
-                        li
-                            h3 Conversation with 
-                                a #{currentConversationWith}
-                            ul.app--message--conversation
-                                include ./partials/_message.pug
-                                - while (messages.length > 0 && previousConversationWith === currentConversationWith) {
-                                    - message = messages.shift();
-
-                                    +setCurrentConversationUser
-                                             
-                                    if currentConversationWith === previousConversationWith
-                                        - // If the next message is with the same person as the previous one, append it inside the current conversation
-                                        include ./partials/_message.pug
-                                    else
-                                        - // If it's not, return the message to the start of the array, so it can be printed in the next iteration, and exit the loop
-                                        - messages.unshift(message);
-                                        - break;     
-                                -}
-                    -}
-
+                include ./partials/_message-list.pug
