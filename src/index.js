@@ -14,7 +14,7 @@
     app.set('views', __dirname + '/templates');
 
     // Set the different get routes
-    app.get('/', twitter.performRequests);
+    app.get('/', twitter.ServerApp.performRequests);
 
     // TODO: Set the post routes
 
