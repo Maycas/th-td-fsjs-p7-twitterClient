@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Maycas/th-td-fsjs-p7-twitterClient#readme",
   "dependencies": {
+    "async": "^2.1.4",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "nodemon": "^1.11.0",
