@@ -1,10 +1,10 @@
-header.circle--header(style='background: url('+ profileBackgroundImageUrl + ') no-repeat; background-size:cover; background-position-y: 100%')
+header.circle--header(style='background: url('+ user.profileBackgroundImageUrl + ') no-repeat; background-size:cover; background-position-y: 100%')
     .bounds
         .circle--fluid
             .circle--fluid--cell
                 a.logo(href='index.html')
                     include ./_logo
-                    h1 @#{username}
+                    h1 @#{user.username}
             .circle--fluid--cell.align-right
                 nav
                     ul.circle--inline

@@ -1,0 +1,7 @@
+extends ./layout.pug
+block content
+    .container(style="padding: 0 20px")
+        h1 An error has occurred, please refresh the page and/or review your configuration file
+        h2 Status Code: #{statusCode}
+        for error in data.errors
+            p Code: #{error.code} - #{error.message}

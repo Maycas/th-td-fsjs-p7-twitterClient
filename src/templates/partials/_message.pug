@@ -6,7 +6,7 @@ if message.from
         p.app--message--timestamp #{message.created_at}
 else if message.to
     li.app--message--me
-        .app--avatar(style='background-image: url('+ userProfileImageUrl +')')
+        .app--avatar(style='background-image: url('+ user.userProfileImageUrl +')')
             img(src=userProfileImageUrl)
         p.app--message--text #{message.messageText}
         p.app--message--timestamp #{message.created_at}
